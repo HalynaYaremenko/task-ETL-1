@@ -93,6 +93,52 @@ for col in possible_web_cols:
 
 # Очистити phone та fax від пробілів/символів.
 
+def clean_phone(x):
+    if pd.isna(x):
+        return np.nan
+    s = str(x)
+    s = s.strip()
+   
+    plus = "+" if s.startswith("+") else ""
+
+    digits = "" 
+    for ch in s:
+        if ch.isdigit():
+            digits += ch
+
+    digits = "".join(ch for ch in s if ch.isdigit())
+
+    if digits == "":
+        return np.nan
+    
+    return plus + digits
+
+for col in possible_phone_cols + possible_fax_cols:
+    df[col] = df[col].apply(clean_phone)
+
+
+def title_if_str(s):
+      if pd.isna(s):
+        return np.nan
+      return str(s).title()
+
+city_cols = [c for c in df.columns if c.lower() in ("city", "city_name", "town")]
+
+adress_cols = [c for c in df.columns if c.lower() in ("address")]
+
+name_cols = [c for c in df.columns if c.lower() in ("name", "first_name", "second_name", "last_name", "company_name" )]
+
+name_title = city_cols + adress_cols + name_cols
+
+if name_title:
+    for col in name_title:
+        df[col] = df[col].apply(title_if_str)
+    print("\n------ name of title -------")    
+else:
+    print("\n------ haven't name -------")  
+
+print(df.head())
+
 # 3. Створення нових колонок (Feature Engineering)
 # Нова колонка	Опис
 # full_name	Ім’я + прізвище
