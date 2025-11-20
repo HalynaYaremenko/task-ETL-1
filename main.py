@@ -135,13 +135,103 @@ if name_title:
         df[col] = df[col].apply(title_if_str)
     print("\n------ name of title -------")    
 else:
-    print("\n------ haven't name -------")  
-
-print(df.head())
-
+    print("\n------ haven't name -------") 
+    
 # 3. Створення нових колонок (Feature Engineering)
-# Нова колонка	Опис
+
 # full_name	Ім’я + прізвище
+
+df["full_name"] = df.first_name + " " + df.last_name
+
 # email_domain	Домен email
+
+def domain(d):
+   if pd.isna(d):
+        return np.nan
+   s = str(d)
+   d = s.split("@")[-1]
+   
+   if d:
+     return d
+   else:
+     return np.nan
+
+df["email_domain"] = df["email"].apply(domain)
+
 # city_length	Довжина назви міста
+
+df["city_length"] = df["city"].apply(len)
+
 # is_gmail	Boolean: чи email з gmail.com
+
+df["is_gmail"] = [True if "@gmail.com" in str(s).lower() else False for s in df["email"]]
+
+# 4. Фільтрація даних
+
+# користувачі з доменом gmail.com
+
+gmail_users = df.loc[df["is_gmail"] == True].copy()
+print("Gmail users:", len(gmail_users))
+
+# працівники компаній з “LLC” або “Ltd”
+
+df["company_name"] = df["company_name"].fillna("")
+
+mask_LLC_Ltd = df.company_name.str.contains(r"\b(LLC|Ltd|llc|LTD|ltd)\b", regex=True, na=False)
+
+company_LLC_Ltd = df.loc[mask_LLC_Ltd].copy()
+
+print("Company LLC and Ltd:", len(company_LLC_Ltd))
+
+# люди з міста London
+
+city_users = df.loc[df["city"] == "London"].copy()
+print("London users:", len(city_users))
+
+# компанії з назвою ≥ 4 слів
+
+def company_words (name):
+   if pd.isna(name):
+        return np.nan
+   return len(str(name).split()) >= 4
+
+df_filtered = df[df["company_name"].apply(company_words)]
+print(df_filtered)
+
+# 5. Позиційна вибірка (iloc)
+
+# Перші 10 рядків + колонки 2–5
+
+try:
+    first_10_cols_2_5 = df.iloc[:10, 2:6] # [row, columns]
+    print("\nперші 10 рядків + колонки 2-5")
+    print(first_10_cols_2_5)
+except Exception as e:
+    print("Can't (перші 10 рядків + колонки 2-5):", e)
+
+# Кожний 10-й рядок
+
+every_10th = df.iloc[::10, :].copy()
+print(every_10th)
+
+# 5 випадкових рядків → .sample(5)
+
+random_5 = df.sample(5, random_state=42)
+print(random_5)
+
+# 6. Групування та статистика
+# Створити агрегати:
+
+# кількість людей у кожному місті
+# ТОП-5 міст
+# ТОП-5 email-доменів
+# кількість унікальних доменів
+# Використати:
+
+# groupby()
+# value_counts()
+# agg()
+
+
+
+# print(df.head())
