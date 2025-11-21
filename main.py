@@ -219,19 +219,38 @@ print(every_10th)
 random_5 = df.sample(5, random_state=42)
 print(random_5)
 
+
 # 6. Групування та статистика
-# Створити агрегати:
 
 # кількість людей у кожному місті
+
+# print(df["city"].value_counts())
+
+city_count = df.groupby("city")["first_name"].nunique()
+
 # ТОП-5 міст
+
+print(df["city"].value_counts().head(5))
+
 # ТОП-5 email-доменів
+
+print(df["email"].str.split("@").str[-1].value_counts().head(5))
+
 # кількість унікальних доменів
-# Використати:
 
-# groupby()
-# value_counts()
-# agg()
+agg_by_city = df.groupby("city").agg(
+    people_count = ("first_name", "count"),
+    uniq_dom =("email_domain", "nunique")
+).sort_values("people_count", ascending=False).head(10)
 
+print(agg_by_city)
 
+# count_by_city = df.groupby('city').size().reset_index(name='count')
+# print(count_by_city)
 
-# print(df.head())
+# 7. Експорт результатів
+# Файл	Містить
+# uk500_clean.csv	очищений датасет
+# gmail_users.csv	вибірка Gmail-користувачів
+# stats.xlsx	ТОП-міста та ТОП-домени у окремих вкладках
+
