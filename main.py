@@ -230,7 +230,8 @@ city_count = df.groupby("city")["first_name"].nunique()
 
 # ТОП-5 міст
 
-print(df["city"].value_counts().head(5))
+top_city = df["city"].value_counts().reset_index()
+top_city.columns = ["city", "count"]
 
 # ТОП-5 email-доменів
 
@@ -245,12 +246,26 @@ agg_by_city = df.groupby("city").agg(
 
 print(agg_by_city)
 
+top_domain = df["email_domain"].value_counts().reset_index()
+top_domain.columns = ["email_domain", "count"]
+
 # count_by_city = df.groupby('city').size().reset_index(name='count')
 # print(count_by_city)
 
 # 7. Експорт результатів
-# Файл	Містить
-# uk500_clean.csv	очищений датасет
-# gmail_users.csv	вибірка Gmail-користувачів
-# stats.xlsx	ТОП-міста та ТОП-домени у окремих вкладках
+
+df.to_csv("uk500_clean.csv", index=False) # зберігаємо очищений датасет
+
+gmail_users.to_csv("gmail_users.csv", index=False) # зберігаємо вибірку Gmail-користувачів
+
+# Зберігаємо ТОП-міста та ТОП-домени у окремих вкладках
+with pd.ExcelWriter("stats.xlsx") as writer:
+    top_city.to_excel(writer, sheet_name="Top Cities", index=False)
+    top_domain.to_excel(writer, sheet_name="Top Domains", index=False)
+
+df_clean = pd.read_csv("uk500_clean.csv")
+# print(df_clean.head())
+df_gmail_users = pd.read_csv("gmail_users.csv")
+# print(df_gmail_users.head())
+
 
